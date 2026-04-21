@@ -1,6 +1,8 @@
+# Dependencies
 node_modules/
+
+# Build outputs
 dist/
-coverage/
 *.tsbuildinfo
 .turbo/
 .npm/
@@ -11,17 +13,22 @@ coverage/
 .env.local
 .env.*.local
 
-# Editor
-.idea/
+# OS / IDE
+.DS_Store
+Thumbs.db
 .vscode/
+.idea/
 *.swp
 *.swo
 
-# OS
-.DS_Store
-Thumbs.db
-
 # Logs
 npm-debug.log*
-*.log
-errors.txt
+yarn-debug.log*
+yarn-error.log*
+
+# Test artifacts
+coverage/
+.nyc_output/
+
+# Vercel / deploy tooling (not used here but defensively)
+.vercel
