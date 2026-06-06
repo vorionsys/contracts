@@ -487,6 +487,7 @@ export function isFeatureEnabled(
   if (overrides?.[flag] !== undefined) {
     return overrides[flag];
   }
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- defensive runtime guard: FLAG_METADATA is typed as a total Record but the optional chain + ?? false keeps callers safe if an unknown/legacy flag key is passed at runtime
   return FLAG_METADATA[flag]?.defaultEnabled ?? false;
 }
 

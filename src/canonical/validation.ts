@@ -128,7 +128,7 @@ export function parseTrustBand(value: unknown): TrustBand | null {
     if (shortFormMatch && shortFormMatch[1]) {
       const level = parseInt(shortFormMatch[1], 10);
       if (level >= 0 && level <= 7) {
-        return level as TrustBand;
+        return level;
       }
     }
   }

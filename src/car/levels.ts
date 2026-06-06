@@ -347,7 +347,7 @@ export function compareLevels(a: CapabilityLevel, b: CapabilityLevel): -1 | 0 | 
  * @returns The lower level
  */
 export function minLevel(a: CapabilityLevel, b: CapabilityLevel): CapabilityLevel {
-  return Math.min(a, b) as CapabilityLevel;
+  return Math.min(a, b);
 }
 
 /**
@@ -358,7 +358,7 @@ export function minLevel(a: CapabilityLevel, b: CapabilityLevel): CapabilityLeve
  * @returns The higher level
  */
 export function maxLevel(a: CapabilityLevel, b: CapabilityLevel): CapabilityLevel {
-  return Math.max(a, b) as CapabilityLevel;
+  return Math.max(a, b);
 }
 
 /**
@@ -374,7 +374,7 @@ export function clampLevel(
   min: CapabilityLevel = CapabilityLevel.L0_OBSERVE,
   max: CapabilityLevel = CapabilityLevel.L7_AUTONOMOUS
 ): CapabilityLevel {
-  return Math.max(min, Math.min(max, level)) as CapabilityLevel;
+  return Math.max(min, Math.min(max, level));
 }
 
 // ============================================================================
@@ -478,7 +478,7 @@ export function parseLevel(levelStr: string): CapabilityLevel {
     throw new Error(`Invalid capability level: ${levelStr}. Must be L0-L7 or 0-7.`);
   }
 
-  return level as CapabilityLevel;
+  return level;
 }
 
 /**

@@ -563,8 +563,8 @@ export function createBidirectionalMap<A extends string | number, B extends stri
   return {
     forward: (a: A) => mapping[a],
     reverse: (b: B) => reverseMapping[b],
-    forwardMap: mapping as Readonly<Record<string, B>>,
-    reverseMap: reverseMapping as Readonly<Record<string, A>>,
+    forwardMap: mapping,
+    reverseMap: reverseMapping,
   };
 }
 
