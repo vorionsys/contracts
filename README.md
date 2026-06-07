@@ -389,6 +389,24 @@ Re-exports everything from v2 contracts, canonical agent types, and feature flag
 
 Governance and agent classification schemas including trust bands, trust scores, risk levels, trust signals, governance rules, and middleware types with runtime Zod validation.
 
+### Trust Bus Enums (`@vorionsys/contracts/canonical/trust-bus`)
+
+The canonical cross-layer wire enums — `BusSignalType` (15 governance signal
+types) and `BusSeverity` (`low` / `medium` / `high` / `critical` / `emergency`)
+per the Trust Signal Bus whitepaper §2.1–2.2, plus the `GovernanceLayer` and
+`SignalPriority` routing enums. This module is a **zero-dependency leaf**:
+enum-only consumers (signal producers, adapters, analytics) can import it
+without pulling `zod` or `drizzle-orm` into their module graph.
+
+```typescript
+import { BusSignalType, BusSeverity } from '@vorionsys/contracts/canonical/trust-bus';
+```
+
+Member names and string values are a frozen wire contract shared with
+`@vorionsys/rainbow` and the rainbow-interop conformance harness — do not
+change them. The Zod schemas for bus signals live in
+`@vorionsys/contracts/canonical/trust-bus-schemas`.
+
 ### Database Module (`@vorionsys/contracts/db`)
 
 Drizzle ORM table definitions for the platform database: `agents`, `tenants`, `attestations`, `stateTransitions`, `approvalRequests`, `apiKeys`, `intents`, `operations`, `proofs`, `merkle`, `escalations`, `webhooks`, `policyVersions`, `rbac`, `trust`, and `serviceAccounts`.
