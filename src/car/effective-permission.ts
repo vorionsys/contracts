@@ -181,7 +181,7 @@ export const effectivePermissionSchema = z.object({
  * Maps certification tier to maximum capability level.
  */
 function certificationTierToCeiling(tier: CertificationTier): CapabilityLevel {
-  return CERTIFICATION_TIER_CONFIGS[tier].maxCapabilityLevel as CapabilityLevel;
+  return CERTIFICATION_TIER_CONFIGS[tier].maxCapabilityLevel;
 }
 
 /**
@@ -241,16 +241,16 @@ export function calculateEffectivePermission(
       ctx.certificationTier + elevation,
       supervisorCap,
       CertificationTier.T7_AUTONOMOUS
-    ) as CertificationTier;
+    );
     // Elevation can never lower the base tier
-    effectiveCertTier = Math.max(ctx.certificationTier, effectiveCertTier) as CertificationTier;
+    effectiveCertTier = Math.max(ctx.certificationTier, effectiveCertTier);
   }
 
   const certificationCeiling = certificationTierToCeiling(effectiveCertTier);
   const competenceCeiling = ctx.competenceLevel;
   const runtimeCeiling = runtimeTierToCeiling(ctx.runtimeTier);
-  const observabilityCeiling = Math.min(7, Math.max(0, ctx.observabilityCeiling)) as CapabilityLevel;
-  const contextPolicyCeiling = Math.min(7, Math.max(0, ctx.contextPolicyCeiling)) as CapabilityLevel;
+  const observabilityCeiling = Math.min(7, Math.max(0, ctx.observabilityCeiling));
+  const contextPolicyCeiling = Math.min(7, Math.max(0, ctx.contextPolicyCeiling));
 
   const ceilings: PermissionCeilings = {
     certificationCeiling,
@@ -269,7 +269,7 @@ export function calculateEffectivePermission(
     { factor: 'context_policy_ceiling' as const, level: contextPolicyCeiling },
   ];
 
-  const minCeilingLevel = Math.min(...allCeilings.map((c) => c.level)) as CapabilityLevel;
+  const minCeilingLevel = Math.min(...allCeilings.map((c) => c.level));
   const constrainingFactors = allCeilings.filter((c) => c.level === minCeilingLevel);
 
   // Determine if constrained and by what
@@ -435,13 +435,13 @@ export function modifyContextCeiling(
 
   switch (factor) {
     case 'certification_tier':
-      newCtx.certificationTier = Math.min(7, Math.max(0, newValue)) as CertificationTier;
+      newCtx.certificationTier = Math.min(7, Math.max(0, newValue));
       break;
     case 'competence_level':
-      newCtx.competenceLevel = Math.min(7, Math.max(0, newValue)) as CapabilityLevel;
+      newCtx.competenceLevel = Math.min(7, Math.max(0, newValue));
       break;
     case 'runtime_tier':
-      newCtx.runtimeTier = Math.min(7, Math.max(0, newValue)) as RuntimeTier;
+      newCtx.runtimeTier = Math.min(7, Math.max(0, newValue));
       break;
     case 'observability_ceiling':
       newCtx.observabilityCeiling = Math.min(7, Math.max(0, newValue));
@@ -485,7 +485,7 @@ export function calculateRequiredChanges(
   if (certificationCeiling < targetLevel) {
     // Need higher certification tier
     for (let tier = ctx.certificationTier + 1; tier <= 7; tier++) {
-      if (certificationTierToCeiling(tier as CertificationTier) >= targetLevel) {
+      if (certificationTierToCeiling(tier) >= targetLevel) {
         changes.set('certification_tier', tier);
         break;
       }

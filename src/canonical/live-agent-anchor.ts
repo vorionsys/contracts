@@ -25,7 +25,7 @@
  */
 
 import { z } from 'zod';
-import { governanceLayerSchema } from './trust-bus.js';
+import { governanceLayerSchema } from './trust-bus-schemas.js';
 
 // ============================================================================
 // Enums

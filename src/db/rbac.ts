@@ -22,6 +22,7 @@ import {
   index,
   uniqueIndex,
   primaryKey,
+  type AnyPgColumn,
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 
@@ -42,7 +43,7 @@ export const rbacRoles = pgTable(
     name: text('name').notNull(),
     description: text('description'),
     priority: integer('priority').notNull().default(0), // Higher = more privileged
-    parentRoleId: uuid('parent_role_id').references((): any => rbacRoles.id, { onDelete: 'set null' }),
+    parentRoleId: uuid('parent_role_id').references((): AnyPgColumn => rbacRoles.id, { onDelete: 'set null' }),
     tenantId: uuid('tenant_id'), // NULL for system/global roles
     isSystem: boolean('is_system').notNull().default(false),
     isActive: boolean('is_active').notNull().default(true),

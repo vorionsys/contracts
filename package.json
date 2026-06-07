@@ -1,6 +1,6 @@
 {
   "name": "@vorionsys/contracts",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Shared schemas, Zod validators, and TypeScript types for the Vorion AI governance platform",
   "type": "module",
   "main": "./dist/index.js",
@@ -61,6 +61,11 @@
       "import": "./dist/canonical/governance.js",
       "require": "./dist/canonical/governance.js"
     },
+    "./canonical/trust-bus": {
+      "types": "./dist/canonical/trust-bus.d.ts",
+      "import": "./dist/canonical/trust-bus.js",
+      "require": "./dist/canonical/trust-bus.js"
+    },
     "./db": {
       "types": "./dist/db/index.d.ts",
       "import": "./dist/db/index.js",
@@ -83,17 +88,23 @@
     "dev": "tsc --watch",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "typecheck": "tsc --noEmit",
+    "lint": "eslint src",
     "clean": "rimraf dist"
   },
   "dependencies": {
-    "drizzle-orm": "^0.44.7",
+    "drizzle-orm": "^0.45.2",
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@types/node": "^22.10.5",
+    "@vitest/coverage-v8": "^4.1.8",
+    "eslint": "^10.4.1",
     "rimraf": "^6.0.1",
     "typescript": "^5.7.2",
+    "typescript-eslint": "^8.60.1",
     "vitest": "^4.0.18"
   },
   "peerDependencies": {
@@ -123,7 +134,7 @@
   },
   "homepage": "https://github.com/vorionsys/contracts#readme",
   "bugs": {
-    "url": "https://github.com/vorionsys/basis-spec/discussions"
+    "url": "https://github.com/vorionsys/contracts/issues"
   },
   "engines": {
     "node": ">=18.0.0"

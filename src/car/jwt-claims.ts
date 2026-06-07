@@ -324,10 +324,10 @@ export function generateJWTClaims(options: GenerateJWTClaimsOptions): CARJWTClai
     carId_level: parsed.level, // backwards compat
     // NOTE: car_trust is derived from attestations, not the CAR
     car_trust: attestations && attestations.length > 0
-      ? (Math.max(...attestations.map((a) => a.tier)) as CertificationTier)
+      ? (Math.max(...attestations.map((a) => a.tier)))
       : undefined,
     carId_trust: attestations && attestations.length > 0
-      ? (Math.max(...attestations.map((a) => a.tier)) as CertificationTier)
+      ? (Math.max(...attestations.map((a) => a.tier)))
       : undefined, // backwards compat
     car_registry: parsed.registry,
     carId_registry: parsed.registry, // backwards compat

@@ -661,7 +661,7 @@ export function parseCertificationTier(tierStr: string): CertificationTier {
     throw new Error(`Invalid certification tier: ${tierStr}. Must be T0-T7 or 0-7.`);
   }
 
-  return tier as CertificationTier;
+  return tier;
 }
 
 /**
@@ -679,7 +679,7 @@ export function parseRuntimeTier(tierStr: string): RuntimeTier {
     throw new Error(`Invalid runtime tier: ${tierStr}. Must be T0-T7 or 0-7.`);
   }
 
-  return tier as RuntimeTier;
+  return tier;
 }
 
 // ============================================================================

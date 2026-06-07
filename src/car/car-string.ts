@@ -134,7 +134,7 @@ export type ACIIdentity = CARIdentity;
  * Extracts the identity portion from a parsed CAR.
  */
 export function getCARIdentity(parsed: ParsedCAR): CARIdentity {
-  return `${parsed.registry}.${parsed.organization}.${parsed.agentClass}` as CARIdentity;
+  return `${parsed.registry}.${parsed.organization}.${parsed.agentClass}`;
 }
 
 /**
@@ -282,7 +282,7 @@ export function parseCAR(car: string): ParsedCAR {
   const domainsBitmask = encodeDomains(domains);
 
   // Parse level (no tier - trust is computed at runtime)
-  const level = parseInt(levelStr!, 10) as CapabilityLevel;
+  const level = parseInt(levelStr!, 10);
 
   // Parse optional extensions
   const extensions = extensionsStr ? extensionsStr.split(',').filter((e) => e.length > 0) : [];
@@ -339,7 +339,7 @@ export function parseLegacyCAR(car: string): { parsed: ParsedCAR; legacyTier: nu
 
   const domains = domainChars as DomainCode[];
   const domainsBitmask = encodeDomains(domains);
-  const level = parseInt(levelStr!, 10) as CapabilityLevel;
+  const level = parseInt(levelStr!, 10);
   const legacyTier = parseInt(tierStr!, 10);
 
   // Generate the new CAR format (without tier)
@@ -529,7 +529,7 @@ export function generateCAR(options: GenerateCAROptions): string {
   }
 
   if (!isCapabilityLevel(level)) {
-    throw new Error(`Invalid level: ${level}. Must be 0-7.`);
+    throw new Error(`Invalid level: ${String(level)}. Must be 0-7.`);
   }
 
   if (!/^\d+\.\d+\.\d+$/.test(version)) {

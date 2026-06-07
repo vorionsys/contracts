@@ -226,7 +226,7 @@ export function calculateSupervisedTier(
     CertificationTier.T7_AUTONOMOUS
   );
 
-  return Math.max(baseTier, elevatedTier) as CertificationTier;
+  return Math.max(baseTier, elevatedTier);
 }
 
 /**
@@ -261,7 +261,7 @@ export function validateSupervisionElevation(
     subjectTier + requestedElevation,
     supervisorCap,
     CertificationTier.T7_AUTONOMOUS
-  ) as CertificationTier;
+  );
 
   return { valid: true, effectiveTier };
 }
@@ -627,7 +627,7 @@ export function toAgentIdentitySummary(identity: AgentIdentity): AgentIdentitySu
   const validAttestations = identity.attestations.filter((a) => a.expiresAt > now);
   const certificationTier =
     validAttestations.length > 0
-      ? (Math.max(...validAttestations.map((a) => a.certificationTier)) as CertificationTier)
+      ? (Math.max(...validAttestations.map((a) => a.certificationTier)))
       : undefined;
 
   return {
@@ -687,6 +687,7 @@ export function matchesAgentCriteria(
       validAttestations.length > 0
         ? Math.max(...validAttestations.map((a) => a.certificationTier))
         : 0; // Default to T0 if no attestations
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison -- highestTier is the numeric max of attestation certificationTier values (or 0); comparing it against the CertificationTier numeric enum is intentional tier ordering
     if (highestTier < criteria.minCertificationTier) {
       return false;
     }

@@ -2,11 +2,19 @@
 // Copyright 2024-2026 Vorion LLC
 
 /**
- * @fileoverview Trust Bus signal types for cross-layer governance propagation.
+ * @fileoverview Trust Bus enums for cross-layer governance propagation.
  *
- * Trust Bus signals extend the intra-layer TrustSignal with routing metadata
- * for propagating trust-relevant events across governance layers (Identity,
- * Governance, Containment, Orchestration, Observation).
+ * This module is a **zero-dependency leaf**: it must contain no imports
+ * (especially not `zod` or `drizzle-orm`) so that enum-only consumers —
+ * signal producers, adapters, and analytics layers — can import the wire
+ * enums without pulling any runtime dependency into their module graph.
+ * The Zod schemas that previously lived here are in `trust-bus-schemas.ts`.
+ *
+ * `BusSeverity` and `BusSignalType` are the **frozen wire surface** shared
+ * with `@vorionsys/rainbow` and the rainbow-interop harness. Member names
+ * and string values are the contract; changing either breaks every consumer
+ * comparing against these values. The guard test
+ * `tests/canonical-trust-bus.test.ts` pins the exact member sets.
  *
  * The signal schema is open-source (Apache-2.0). The Bus Router that routes
  * and correlates these signals is an AgentAnchor Pro/Enterprise feature.
@@ -15,11 +23,8 @@
  * @module @vorionsys/contracts/canonical/trust-bus
  */
 
-import { z } from 'zod';
-import { signalTypeSchema } from './trust-signal.js';
-
 // ============================================================================
-// Enums
+// Enums (zero-dependency wire surface)
 // ============================================================================
 
 /**
@@ -53,172 +58,59 @@ export enum SignalPriority {
 }
 
 /**
- * Signal urgency classification.
+ * Signal urgency classification per Trust Signal Bus whitepaper Section 2.1.
+ *
+ * NOTE: Distinct from the action risk levels (READ through LIFE_CRITICAL)
+ * in `@vorionsys/basis`.
  */
 export enum BusSeverity {
-  /** Immediate halt required */
-  EMERGENCY = 'emergency',
-  /** Immediate attention required */
-  ALERT = 'alert',
-  /** Potential issue detected */
-  WARNING = 'warning',
   /** Normal operational event */
-  INFO = 'info',
+  LOW = 'low',
+  /** Moderate concern — enhanced monitoring */
+  MEDIUM = 'medium',
+  /** Significant event — immediate attention */
+  HIGH = 'high',
+  /** Severe event — enforcement action required */
+  CRITICAL = 'critical',
+  /** Immediate halt required — coordinated attack or life-safety threat */
+  EMERGENCY = 'emergency',
 }
 
-// ============================================================================
-// Zod Schemas
-// ============================================================================
-
-export const governanceLayerSchema = z.nativeEnum(GovernanceLayer, {
-  errorMap: () => ({ message: 'Invalid governance layer' }),
-});
-
-export const signalPrioritySchema = z.nativeEnum(SignalPriority, {
-  errorMap: () => ({ message: 'Invalid signal priority' }),
-});
-
-export const busSeveritySchema = z.nativeEnum(BusSeverity, {
-  errorMap: () => ({ message: 'Invalid bus severity' }),
-});
-
 /**
- * Trust Bus signal payload — the event data carried by the signal.
- */
-export const trustBusPayloadSchema = z.object({
-  /** What happened — human-readable event description */
-  event: z.string().min(1).max(500),
-
-  /** Trust score delta recommended by the emitting layer */
-  recommendedDelta: z.number().min(-1000).max(1000).optional(),
-
-  /** Trust tier at time of emission (T0-T7) */
-  currentTier: z
-    .enum(['T0', 'T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'])
-    .optional(),
-
-  /** Current trust score at time of emission (0-1000) */
-  currentScore: z.number().min(0).max(1000).optional(),
-
-  /** Enforcement decision that triggered this signal */
-  decision: z.enum(['allow', 'deny', 'escalate', 'degrade']).optional(),
-
-  /** Layer-specific structured data */
-  details: z.record(z.unknown()).optional(),
-});
-
-/**
- * Trust Bus signal — a cross-layer governance event.
+ * Cross-layer governance signal types per Trust Signal Bus whitepaper
+ * Section 2.2.
  *
- * This is the atomic unit of the Trust Bus protocol. Each signal carries
- * a trust-relevant event from one governance layer to one or more others,
- * with cryptographic hash linkage to the proof chain.
+ * NOTE: Distinct from the intra-layer SignalType (ACTION_SUCCESS, etc.).
  */
-export const trustBusSignalSchema = z.object({
-  // ── Identity ──
-  /** Unique signal identifier (UUID v4) */
-  signalId: z.string().uuid(),
-
-  /** Groups related signals across layers for correlation */
-  correlationId: z.string().uuid(),
-
-  // ── Routing ──
-  /** Which governance layer emitted this signal */
-  sourceLayer: governanceLayerSchema,
-
-  /** Target layers (empty array = broadcast to all) */
-  targetLayers: z.array(governanceLayerSchema).default([]),
-
-  /** Delivery priority — affects routing order and latency */
-  priority: signalPrioritySchema.default(SignalPriority.NORMAL),
-
-  // ── Payload ──
-  /** Agent this signal concerns */
-  agentId: z.string().min(1),
-
-  /** Tenant/organization scope */
-  tenantId: z.string().min(1),
-
-  /** Signal type — reuses canonical SignalType enum */
-  signalType: signalTypeSchema,
-
-  /** Signal urgency classification */
-  severity: busSeveritySchema.default(BusSeverity.INFO),
-
-  /** Event payload with layer-specific data */
-  payload: trustBusPayloadSchema,
-
-  // ── Integrity ──
-  /** When this signal was emitted (ISO 8601 UTC) */
-  timestamp: z.string().datetime(),
-
-  /** SHA-256 hash of the previous signal for this agent (chain linkage) */
-  previousHash: z.string().regex(/^sha256:[a-f0-9]{64}$/),
-
-  /** SHA-256 hash of this signal's content */
-  signalHash: z.string().regex(/^sha256:[a-f0-9]{64}$/),
-
-  // ── Context ──
-  /** Additional contextual metadata */
-  metadata: z.record(z.unknown()).optional(),
-
-  /** Signal relevance window — expired signals are dropped (ISO 8601 UTC) */
-  expiresAt: z.string().datetime().optional(),
-});
-
-/**
- * Schema for creating/emitting a Trust Bus signal.
- * Hash fields are computed by the emitter, not provided by the caller.
- */
-export const emitTrustBusSignalSchema = z.object({
-  correlationId: z.string().uuid().optional(),
-  sourceLayer: governanceLayerSchema,
-  targetLayers: z.array(governanceLayerSchema).default([]),
-  priority: signalPrioritySchema.default(SignalPriority.NORMAL),
-  agentId: z.string().min(1),
-  tenantId: z.string().min(1),
-  signalType: signalTypeSchema,
-  severity: busSeveritySchema.default(BusSeverity.INFO),
-  payload: trustBusPayloadSchema,
-  metadata: z.record(z.unknown()).optional(),
-  expiresAt: z.string().datetime().optional(),
-});
-
-/**
- * Bus subscription — defines what signals a consumer wants to receive.
- */
-export const busSubscriptionSchema = z.object({
-  /** Which layers to receive signals from */
-  sourceLayers: z.array(governanceLayerSchema).min(1),
-
-  /** Which signal types to receive (empty = all) */
-  signalTypes: z.array(signalTypeSchema).optional(),
-
-  /** Minimum severity to receive */
-  minSeverity: busSeveritySchema.optional(),
-
-  /** Minimum priority to receive */
-  minPriority: signalPrioritySchema.optional(),
-
-  /** Webhook URL for signal delivery */
-  deliveryUrl: z.string().url(),
-
-  /** Shared secret for webhook HMAC signature verification */
-  signingSecret: z.string().min(32),
-});
-
-// ============================================================================
-// Type Inference
-// ============================================================================
-
-/** Inferred TrustBusSignal type from Zod schema */
-export type TrustBusSignal = z.infer<typeof trustBusSignalSchema>;
-
-/** Inferred emit request type from Zod schema */
-export type EmitTrustBusSignal = z.infer<typeof emitTrustBusSignalSchema>;
-
-/** Inferred payload type from Zod schema */
-export type TrustBusPayload = z.infer<typeof trustBusPayloadSchema>;
-
-/** Inferred subscription type from Zod schema */
-export type BusSubscription = z.infer<typeof busSubscriptionSchema>;
+export enum BusSignalType {
+  /** Active threat identified (probe, tampering, injection) */
+  THREAT_DETECTED = 'threat_detected',
+  /** Behavioral or structural anomaly outside expected bounds */
+  ANOMALY = 'anomaly',
+  /** Gradual deviation from baseline (weight drift, behavioral drift) */
+  DRIFT = 'drift',
+  /** Agent actively probing execution environment (Heisenberg trigger) */
+  PROBE_DETECTED = 'probe_detected',
+  /** CSSR rotation executed; new execution surface active */
+  ROTATION_TRIGGERED = 'rotation_triggered',
+  /** Agent's policy envelope has been restricted */
+  POLICY_TIGHTENED = 'policy_tightened',
+  /** Agent's trust score or tier has changed */
+  TRUST_UPDATED = 'trust_updated',
+  /** Canary probe passed — positive trust signal */
+  CANARY_PASSED = 'canary_passed',
+  /** Canary probe failed — negative trust signal */
+  CANARY_FAILED = 'canary_failed',
+  /** Dormancy milestone reached — stepped trust deduction applied */
+  DORMANCY_DEDUCTION = 'dormancy_deduction',
+  /** Rolling 24h risk accumulator crossed warning threshold (>=60) */
+  RISK_ACCUMULATOR_WARNING = 'risk_accumulator_warning',
+  /** Rolling 24h risk accumulator crossed degraded threshold (>=120) */
+  RISK_ACCUMULATOR_DEGRADED = 'risk_accumulator_degraded',
+  /** Circuit breaker tripped — all operations halted */
+  CIRCUIT_BREAKER_TRIPPED = 'circuit_breaker_tripped',
+  /** RAINBOW detected a sustained trust trend (rising/falling) */
+  TREND_DETECTED = 'trend_detected',
+  /** RAINBOW detected a fleet-wide anomaly pattern */
+  FLEET_ANOMALY = 'fleet_anomaly',
+}

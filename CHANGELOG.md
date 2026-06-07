@@ -5,6 +5,39 @@ All notable changes to `@vorionsys/contracts` will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-06-06
+
+### Added
+
+- **Canonical trust-bus wire enums** — `BusSignalType` (15 cross-layer governance
+  signal types) and the rainbow-era `BusSeverity` (`low` / `medium` / `high` /
+  `critical` / `emergency`) at `@vorionsys/contracts/canonical/trust-bus`, per the
+  Trust Signal Bus whitepaper §2.1–2.2. This is the single canonical source for
+  these enums; `@vorionsys/rainbow` and other consumers re-export from here
+  instead of vendoring copies. Member names and string values are a **frozen wire
+  contract** guarded by `tests/canonical-trust-bus.test.ts`.
+- `busSignalTypeSchema` Zod validator alongside the existing bus schemas.
+- Explicit `./canonical/trust-bus` entry in the `exports` map (previously reachable
+  only via the `./canonical/*` wildcard).
+
+### Changed
+
+- **`./canonical/trust-bus` is now a zero-dependency leaf.** The Zod schemas that
+  lived there (`trustBusSignalSchema`, `emitTrustBusSignalSchema`,
+  `busSubscriptionSchema`, payload schema, and the enum validators) moved to
+  `./canonical/trust-bus-schemas`, which re-exports the enums for convenience.
+  Enum-only imports no longer pull `zod` (or anything else) into the module graph.
+- **`BusSeverity` members replaced.** The previous syslog-style members
+  (`EMERGENCY`/`ALERT`/`WARNING`/`INFO`) are superseded by the five-member wire
+  surface above. The old members were published in `1.0.0` but only reachable via
+  the undocumented `./canonical/*` wildcard subpath, were not re-exported from
+  `./canonical`, and have no known consumers (org-wide sweep + npm). Schema
+  defaults that used `BusSeverity.INFO` now use `BusSeverity.LOW` ("normal
+  operational event" in both vocabularies). If you compared against the old
+  string values, migrate: `info` → `low`, `warning` → `medium`/`high` per your
+  routing semantics, `alert` → `critical`.
+- `bugs.url` now points at this repository's issue tracker.
+
 ## [1.0.0] - 2026-04-21
 
 ### First release under the OSS rebuild
