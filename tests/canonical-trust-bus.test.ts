@@ -78,12 +78,41 @@ describe('canonical trust-bus frozen surface', () => {
       fileURLToPath(new URL('../src/canonical/trust-bus.ts', import.meta.url)),
       'utf8',
     );
-    // Any import/require would drag dependencies into enum-only consumers'
-    // module graphs. Doc comments are stripped before matching so prose
-    // mentioning the word "import" cannot false-positive.
-    const code = source.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\n]*/g, '');
-    expect(code).not.toMatch(/\bimport\b/);
-    expect(code).not.toMatch(/\brequire\s*\(/);
-    expect(code).not.toMatch(/\bexport\s+\*?\s*from\b/);
+    assertZeroDependencyModule(source);
+  });
+
+  it('the built dist artifact is also a zero-dependency leaf', () => {
+    // The exports map points consumers at dist/, so the source check alone
+    // cannot catch a build-config regression. CI runs build before test
+    // (ci.yml / release.yml); locally, run `npm run build` first.
+    const distPath = fileURLToPath(
+      new URL('../dist/canonical/trust-bus.js', import.meta.url),
+    );
+    let dist: string;
+    try {
+      dist = readFileSync(distPath, 'utf8');
+    } catch {
+      throw new Error(
+        'dist/canonical/trust-bus.js not found — run `npm run build` before `npm test` ' +
+          'so the zero-dependency guard can pin the emitted artifact.',
+      );
+    }
+    assertZeroDependencyModule(dist);
   });
 });
+
+/**
+ * Asserts a module's code contains no dependency edges of any kind:
+ * static imports, named/star re-exports (`export ... from`), dynamic
+ * `import()`, or `require()`. `export type ... from` would be erased at
+ * runtime, but it is banned here too — the leaf needs no type imports, and
+ * allowing them invites churn at the contract boundary. Comments are
+ * stripped first so prose mentioning "import" cannot false-positive.
+ */
+function assertZeroDependencyModule(source: string): void {
+  const code = source.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\n]*/g, '');
+  expect(code).not.toMatch(/\bimport\b/);
+  expect(code).not.toMatch(/\brequire\s*\(/);
+  expect(code).not.toMatch(/\bexport\b[^;{]*\bfrom\b/);
+  expect(code).not.toMatch(/\bexport\s*\{[^}]*\}\s*from\b/);
+}
