@@ -30,7 +30,27 @@ export enum RiskLevel {
   HIGH = 'HIGH',
   /** Critical operations - requires human approval */
   CRITICAL = 'CRITICAL',
+  /** Life-critical operations - maximum scrutiny */
+  LIFE_CRITICAL = 'LIFE_CRITICAL',
 }
+
+/**
+ * Risk multipliers for penalty and gain calculations.
+ *
+ * Loss formula: -P(T) x R(action) x gainRate x ln(1 + C/2)
+ *   Fixed midpoint reference — position-independent, tier-monotonic.
+ * Gain formula: gainRate x ln(1 + C - S) x cbrt(R(action))
+ *
+ * Higher-risk actions carry disproportionate penalty relative to reward.
+ */
+export const RISK_MULTIPLIERS: Record<RiskLevel, number> = {
+  [RiskLevel.READ]: 1,
+  [RiskLevel.LOW]: 3,
+  [RiskLevel.MEDIUM]: 5,
+  [RiskLevel.HIGH]: 10,
+  [RiskLevel.CRITICAL]: 15,
+  [RiskLevel.LIFE_CRITICAL]: 30,
+};
 
 /**
  * Trust thresholds per risk level
@@ -42,6 +62,7 @@ export const TRUST_THRESHOLDS: Record<RiskLevel, number> = {
   [RiskLevel.MEDIUM]: 400,    // T2/T3 boundary (0-1000 scale)
   [RiskLevel.HIGH]: 600,      // T3 Monitored minimum (0-1000 scale)
   [RiskLevel.CRITICAL]: 800,  // T5 Trusted minimum + human approval (0-1000 scale)
+  [RiskLevel.LIFE_CRITICAL]: 951, // T7 Autonomous only + mandatory human approval
 };
 
 /**

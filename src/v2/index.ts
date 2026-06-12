@@ -40,6 +40,9 @@ export * from './canary-probe.js';
 // Pre-action gate types (ATSF v2.0)
 export * from './pre-action-gate.js';
 
+// Agent lifecycle types (restored 0.4.x published surface)
+export * from './agent-lifecycle.js';
+
 // Evidence types (ERPL)
 export * from './evidence.js';
 
