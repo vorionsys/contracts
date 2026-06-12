@@ -260,3 +260,67 @@ export interface CanaryFailureEvent {
   /** The probe result */
   result: CanaryProbeResult;
 }
+
+// =============================================================================
+// DEGRADATION STATE MACHINE (restored 0.4.x published surface)
+// =============================================================================
+
+/**
+ * Degradation levels for repeated canary failures.
+ *
+ *   NORMAL → CAUTIOUS → RESTRICTED → SUSPENDED
+ *
+ * Recovery is time-based (zero failures for N hours) except SUSPENDED,
+ * which may require manual operator reset.
+ */
+export enum DegradationLevel {
+  NORMAL = 'NORMAL',
+  CAUTIOUS = 'CAUTIOUS',
+  RESTRICTED = 'RESTRICTED',
+  SUSPENDED = 'SUSPENDED',
+}
+
+/**
+ * Configuration for the degradation state machine.
+ */
+export interface DegradationConfig {
+  /** Failures in 48h to enter CAUTIOUS (default: 3) */
+  cautiousThreshold: number;
+  /** Failures in 48h to enter RESTRICTED (default: 5) */
+  restrictedThreshold: number;
+  /** Failures in 48h to enter SUSPENDED (default: 8) */
+  suspendedThreshold: number;
+  /** Hours at zero failures before RESTRICTED → CAUTIOUS (default: 24) */
+  restrictedRecoveryHours: number;
+  /** Hours at zero failures before CAUTIOUS → NORMAL (default: 48) */
+  cautiousRecoveryHours: number;
+  /** Whether SUSPENDED requires manual reset (default: true) */
+  suspendedRequiresManualReset: boolean;
+}
+
+/**
+ * Sensible defaults for degradation thresholds.
+ */
+export const DEFAULT_DEGRADATION_CONFIG: DegradationConfig = {
+  cautiousThreshold: 3,
+  restrictedThreshold: 5,
+  suspendedThreshold: 8,
+  restrictedRecoveryHours: 24,
+  cautiousRecoveryHours: 48,
+  suspendedRequiresManualReset: true,
+};
+
+/**
+ * Freeze durations (ms) indexed by degradation level.
+ *
+ * NORMAL:     15s — quick validation window
+ * CAUTIOUS:   30s — extended observation
+ * RESTRICTED: 60s — thorough review
+ * SUSPENDED:  Infinity — frozen until manual reset
+ */
+export const FREEZE_DURATION_BY_LEVEL: Record<DegradationLevel, number> = {
+  [DegradationLevel.NORMAL]: 15_000,
+  [DegradationLevel.CAUTIOUS]: 30_000,
+  [DegradationLevel.RESTRICTED]: 60_000,
+  [DegradationLevel.SUSPENDED]: Infinity,
+};
