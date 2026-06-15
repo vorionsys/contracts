@@ -5,6 +5,27 @@ All notable changes to `@vorionsys/contracts` will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.2] - 2026-06-15
+
+### Changed
+
+- **Widened the `typescript` peer range to `^5.0.0 || ^6.0.0`.** The previous
+  `^5.0.0`-only peer forced an `ERESOLVE` install failure on consumers that had moved
+  to TypeScript 6 (e.g. `@vorionsys/rainbow`). Purely a constraint widening — no
+  source, type, or runtime changes. The package is built and tested with TypeScript
+  5.x; its emitted `dist/` declarations are consumable by TypeScript 6 projects
+  (verified by typechecking a TS6 consumer against the packaged types). Note:
+  building this package's *own source* under `tsc` 6 is not yet clean (a global
+  `crypto` resolution gap in `src/car/`), so its `devDependencies.typescript` stays
+  on 5.x; that is independent of what consumers compile with.
+
+## [1.1.1] - 2026-06-12
+
+### Fixed
+
+- Restored runtime exports required by the already-published `@vorionsys/a3i`
+  consumer that were unintentionally dropped (contracts#4). No public type changes.
+
 ## [1.1.0] - 2026-06-06
 
 ### Added
