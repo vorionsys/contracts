@@ -1,5 +1,9 @@
 # @vorionsys/contracts
 
+[![npm](https://img.shields.io/npm/v/@vorionsys/contracts)](https://www.npmjs.com/package/@vorionsys/contracts)
+[![CI](https://img.shields.io/github/actions/workflow/status/vorionsys/contracts/ci.yml)](https://github.com/vorionsys/contracts/actions/workflows/ci.yml)
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](./LICENSE)
+
 Shared schemas, types, and validators for the Vorion platform -- the single source of truth for trust profiles, intents, decisions, proof events, governance types, and feature flags used across all Vorion services.
 
 ## Installation
