@@ -5,6 +5,23 @@ All notable changes to `@vorionsys/contracts` will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2026-07-06
+
+### Added
+
+- **BASIS decision-record wire format** under the new `@vorionsys/contracts/basis`
+  subpath: `DecisionRecordSchema` (strict Zod, v1), chain/keys file envelopes
+  (`ChainFileSchema`, `KeysFileSchema`, `parseChainFile`, `parseKeysFile`),
+  `toSignable()`, and the frozen v1 vocabularies (`DECISIONS`, `REASON_CODES`,
+  `CREDENTIAL_STATUSES`). Two schema-level invariants ride along: a credential
+  with `status: "none"` must carry `expiresAt: null`, and human resolutions
+  (`HUMAN_APPROVED`/`HUMAN_DENIED`) must link to the escalation they resolve.
+  Deliberately **not** re-exported from the package root — the `Decision*` names
+  would collide with the v2 platform contracts. Consumers: `@vorionsys/verify`,
+  `@vorionsys/gate-core`, and the basis-demo app. Canonicalization (RFC 8785),
+  hashing, and Ed25519 signing intentionally live in `@vorionsys/verify`, not here.
+  Reason-code/domain vocabularies to reconcile into `@vorionsys/shared-constants`
+  before any v2 of the record format (tracked in the source header).
 ## [1.1.2] - 2026-06-15
 
 ### Changed
