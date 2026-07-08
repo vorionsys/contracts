@@ -5,6 +5,17 @@ All notable changes to `@vorionsys/contracts` will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2026-07-08
+
+### Added
+
+- **Three BASIS reason codes** (additive, `@vorionsys/contracts/basis`):
+  `CAPABILITY_NOT_GRANTED` (tier lacks the capability regardless of domain),
+  `PARAM_NOT_ALLOWLISTED` (a parameter value violates policy — e.g. a prohibited
+  lending decision basis), and `RATE_LIMIT_EXCEEDED` (velocity cap computed from
+  the proof chain itself). Consumers that exhaustively switch on `ReasonCode`
+  should add the new arms. Verifiers built against 1.2.0 schema-reject records
+  carrying the new codes — `@vorionsys/verify@0.2.0` ships rebuilt against this.
 ## [1.2.0] - 2026-07-06
 
 ### Added
