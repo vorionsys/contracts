@@ -110,7 +110,8 @@ describe('DecisionRecordSchema', () => {
     expect(REASON_CODES).toContain('CAPABILITY_NOT_GRANTED');
     expect(REASON_CODES).toContain('PARAM_NOT_ALLOWLISTED');
     expect(REASON_CODES).toContain('RATE_LIMIT_EXCEEDED');
-    expect(REASON_CODES).toHaveLength(10);
+    expect(REASON_CODES).toContain('CIRCUIT_BREAKER_OPEN');
+    expect(REASON_CODES).toHaveLength(11);
     expect(CREDENTIAL_STATUSES).toEqual(['active', 'expired', 'revoked', 'none']);
   });
 });
