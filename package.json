@@ -1,6 +1,6 @@
 {
   "name": "@vorionsys/contracts",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "Shared schemas, Zod validators, and TypeScript types for the Vorion agent audit and trust platform",
   "type": "module",
   "main": "./dist/index.js",

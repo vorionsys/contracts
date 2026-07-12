@@ -5,6 +5,17 @@ All notable changes to `@vorionsys/contracts` will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2026-07-12
+
+### Added
+
+- **`APPROVAL_CEILING_EXCEEDED` reason code** (`@vorionsys/contracts/basis`, additive,
+  11 -> 12): emitted when a quorum-approved escalation still exceeds the policy's
+  approval ceiling — human approval grants permission within policy, never beyond it
+  ("approval is not authority"). The chain shows the full story as a linked triple:
+  escalation -> signed HUMAN_APPROVED vote -> gate denial. Ships with
+  `@vorionsys/gate-core@0.5.0` (resolution-time re-checks) and the basis-demo
+  approval-conflict scenarios; `@vorionsys/verify@0.5.0` rebuilds same-day.
 ## [1.4.0] - 2026-07-09
 
 ### Added
