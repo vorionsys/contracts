@@ -54,6 +54,7 @@ export const REASON_CODES = [
   "CREDENTIAL_REVOKED",
   "HUMAN_APPROVED",
   "HUMAN_DENIED",
+  "APPROVAL_CEILING_EXCEEDED",
 ] as const;
 export const ReasonCodeSchema = z.enum(REASON_CODES);
 export type ReasonCode = z.infer<typeof ReasonCodeSchema>;
