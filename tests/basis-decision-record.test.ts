@@ -112,7 +112,8 @@ describe('DecisionRecordSchema', () => {
     expect(REASON_CODES).toContain('RATE_LIMIT_EXCEEDED');
     expect(REASON_CODES).toContain('CIRCUIT_BREAKER_OPEN');
     expect(REASON_CODES).toContain('APPROVAL_CEILING_EXCEEDED');
-    expect(REASON_CODES).toHaveLength(12);
+    expect(REASON_CODES).toContain('VERIFICATION_REQUIRED');
+    expect(REASON_CODES).toHaveLength(13);
     expect(CREDENTIAL_STATUSES).toEqual(['active', 'expired', 'revoked', 'none']);
   });
 });
