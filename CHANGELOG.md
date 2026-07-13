@@ -5,6 +5,16 @@ All notable changes to `@vorionsys/contracts` will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.0] - 2026-07-13
+
+### Added
+
+- **`VERIFICATION_REQUIRED` reason code** (`@vorionsys/contracts/basis`, additive,
+  12 -> 13): emitted when a verification-gated capability lacks a fresh,
+  evidence-committed attestation in the chain — no agent has final say on its own
+  work. Ships with `@vorionsys/gate-core@0.6.0` (verificationGates: attestations are
+  emitted by a different principal, human-validated via the escalation machinery,
+  and expire by count-window). `@vorionsys/verify@0.6.0` rebuilds same-day.
 ## [1.5.0] - 2026-07-12
 
 ### Added
