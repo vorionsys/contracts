@@ -16,7 +16,7 @@ Thank you for considering a contribution. This repository holds the shared contr
 
 - **New contract types.** The type surface is versioned and lives on a deprecation calendar. New types should be proposed via issue with a named consumer in mind.
 - **Breaking type changes** in published subpaths without a major version bump. Tightening type narrowing is minor-breaking and must follow semver.
-- **Changes to `canonical/*`** that disagree with `@vorionsys/basis` canonical values. `@vorionsys/basis` is the single source of truth for trust parameters; this package mirrors it. If you find a mismatch, file an issue naming both packages.
+- **Changes to `canonical/*`** that disagree with `@vorionsys/basis-spec` canonical values. `@vorionsys/basis-spec` is the single source of truth for trust parameters; this package mirrors it. If you find a mismatch, file an issue naming both packages.
 
 ## Before you open a PR
 
