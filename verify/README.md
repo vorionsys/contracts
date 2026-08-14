@@ -11,7 +11,35 @@ from the registry, no workspace resolution, no source tree, no path mapping.
 does not substitute — it resolves through the workspace and cannot see a broken `exports`
 map, a missing `dist`, or a `files` field that dropped a directory.
 
-Nothing here is wired into CI yet; it is a manual gate. See "Wiring this into CI" below.
+## Run everything
+
+```sh
+node verify/run.mjs            # verify dist-tag `latest`
+node verify/run.mjs 1.6.1      # verify an exact version
+node verify/run.mjs latest --keep   # leave the scratch dir for inspection
+```
+
+That is the supported entry point, and it runs in CI on every published release
+(`.github/workflows/verify-published.yml`, also manually triggerable via
+**Actions → Verify published package → Run workflow**).
+
+> ### Do not run these checks from inside this repo
+>
+> This package declares an `exports` map, so Node **self-references**
+> `@vorionsys/contracts/...` to the local `dist/` for any script living in this tree.
+> Bare-specifier resolution walks up from the *importing module's* location, so a check
+> run in-tree — even from a sibling temp directory — verifies the local build instead of
+> the published artifact. In CI, where `build` has already run, that is a green check that
+> never touched the registry: a false green in the tool meant to prevent false greens.
+>
+> Confirmed: `import.meta.resolve('@vorionsys/contracts/canonical/trust-bus')` from the
+> repo root returns `file://<repo>/dist/canonical/trust-bus.js`.
+>
+> `run.mjs` handles this — it copies the checks into an OS temp directory, installs the
+> published package there, and **asserts resolution landed in that directory's
+> `node_modules`** before trusting any result. The manual recipes below are shown for
+> understanding; prefer `run.mjs`, and if you do run one by hand, run it from a scratch
+> directory outside this repository.
 
 ---
 
@@ -27,9 +55,11 @@ persisted or transmitted them, even though TypeScript will not complain at the p
 That is the whole reason this check exists.
 
 ```sh
-mkdir verify-tmp && cd verify-tmp && npm init -y
+# from a scratch directory OUTSIDE this repo — see the warning above
+cd "$(mktemp -d)" && npm init -y
 npm i --no-save @vorionsys/contracts@latest
-node ../verify/smoke-trust-bus.mjs
+cp /path/to/repo/verify/smoke-trust-bus.mjs .   # copy IN; do not run it in-tree
+node smoke-trust-bus.mjs
 ```
 
 Run it against the packed tarball too (`npm pack`, then install the `.tgz`) when you want
@@ -43,7 +73,7 @@ consumable by a TS6 project**. This check proves exactly that: enum use at type 
 level, and an exhaustive `switch` over `BusSeverity`.
 
 ```sh
-cd verify/ts6-consumer
+# copy ts6-consumer/ to a scratch dir outside this repo first, then:
 npm i --no-save @vorionsys/contracts@latest typescript@6
 npx tsc -p tsconfig.json      # expect: no output, exit 0
 ```
