@@ -5,6 +5,26 @@ All notable changes to `@vorionsys/contracts` will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed (behaviour change)
+
+- **`DEFAULT_TRUST_DYNAMICS.penaltyRatioMin` is now 3, not 7.** The penalty
+  range is imported from `@vorionsys/basis-spec` (`PENALTY_RATIO_MIN`,
+  `PENALTY_RATIO_MAX` in canonical.ts) instead of being redefined here, so
+  contracts can no longer drift from the spec. The range is 3x at T0 rising
+  linearly to 10x at T7 (3, 4, 5 ... 10), so penalties still grow with
+  autonomy. Losses at T0 fall from 7x to 3x the gain rate, so T0 scores
+  recover faster than under 1.0.0 to 1.6.1; T7 is unchanged at 10x. Callers
+  who pass their own `penaltyRatioMin` are unaffected.
+- 0.2.0 to 0.4.2 already used 3 ("per BASIS spec"); 1.0.0 went back to 7
+  without a changelog entry. This restores the spec value.
+
+### Added
+
+- Runtime dependency on `@vorionsys/basis-spec` `^1.3.0` (ESM, depends only
+  on zod).
+
 ## [1.6.0] - 2026-07-13
 
 ### Added

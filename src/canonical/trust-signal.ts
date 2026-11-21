@@ -431,7 +431,7 @@ export function isNegativeSignal(type: SignalType): boolean {
  *
  * For positive signals: applies weight, confidence, and magnitude multiplier.
  * For negative signals: magnitudeMultiplier is clamped to max 1.0 — negative
- * signals are never amplified here. The tier-scaled penalty formula (2-10x)
+ * signals are never amplified here. The tier-scaled penalty formula (3-10x, BASIS canonical.ts)
  * is the sole mechanism for negative amplification.
  *
  * @param signal - Trust signal

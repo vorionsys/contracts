@@ -5,6 +5,7 @@
  * Trust Profile types - represents an agent's current trust state
  */
 
+import { PENALTY_RATIO_MAX, PENALTY_RATIO_MIN } from '@vorionsys/basis-spec';
 import type { ObservationTier, TrustBand } from './enums.js';
 
 /**
@@ -57,7 +58,7 @@ export type EvidenceType =
  *
  * IMPORTANT: Multipliers > 1.0 are only applied to POSITIVE evidence.
  * Negative evidence is never amplified by these multipliers — the tier-scaled
- * penalty formula (2-10x) is the sole mechanism for negative amplification.
+ * penalty formula (3-10x, BASIS canonical.ts) is the sole mechanism for negative amplification.
  * hitl_rejection is listed as 1.0 to make this explicit.
  */
 export const EVIDENCE_TYPE_MULTIPLIERS: Record<EvidenceType, number> = {
@@ -251,7 +252,10 @@ export const RISK_PROFILE_WINDOWS: Record<RiskProfile, number> = {
 
 /**
  * Configuration for asymmetric trust dynamics
- * Per ATSF v2.0: "Trust is hard to gain, easy to lose" (2-10x ratio, tier-scaled)
+ * Per ATSF v2.0: "Trust is hard to gain, easy to lose" (tier-scaled ratio)
+ *
+ * The default range is owned by the BASIS spec: PENALTY_RATIO_MIN and
+ * PENALTY_RATIO_MAX in @vorionsys/basis-spec (canonical.ts), 3x to 10x.
  *
  * Failure penalty scales linearly from penaltyRatioMin at T0 (Sandbox) to
  * penaltyRatioMax at T7 (Autonomous). This allows early-stage agents room to
@@ -269,14 +273,14 @@ export interface TrustDynamicsConfig {
   /**
    * Minimum failure penalty ratio, applied at T0 (Sandbox)
    * Effective loss rate = gainRate * penaltyRatioMin
-   * Default: 7 (7x gainRate — lenient for new/recovering agents)
+   * Default: PENALTY_RATIO_MIN from @vorionsys/basis-spec (3x gainRate)
    */
   penaltyRatioMin: number;
 
   /**
    * Maximum failure penalty ratio, applied at T7 (Autonomous)
    * Effective loss rate = gainRate * penaltyRatioMax
-   * Default: 10 (10x gainRate — strict for highest-trust agents)
+   * Default: PENALTY_RATIO_MAX from @vorionsys/basis-spec (10x gainRate)
    */
   penaltyRatioMax: number;
 
@@ -358,8 +362,8 @@ export interface TrustDynamicsConfig {
 /** Default trust dynamics configuration per ATSF v2.0 */
 export const DEFAULT_TRUST_DYNAMICS: TrustDynamicsConfig = {
   gainRate: 0.01,                    // Logarithmic gain (slow)
-  penaltyRatioMin: 7,                // T0 loss = 7x gainRate (early-stage leniency)
-  penaltyRatioMax: 10,               // T7 loss = 10x gainRate (strict at full autonomy)
+  penaltyRatioMin: PENALTY_RATIO_MIN, // T0 loss = 3x gainRate, from the BASIS spec
+  penaltyRatioMax: PENALTY_RATIO_MAX, // T7 loss = 10x gainRate, from the BASIS spec
   cooldownHours: 168,                // 7 days after any drop
   oscillationThreshold: 3,           // 3 direction changes triggers alert
   oscillationWindowHours: 24,        // Within 24 hours
