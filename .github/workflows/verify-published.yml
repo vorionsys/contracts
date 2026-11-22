@@ -1,0 +1,68 @@
+# Verifies the PUBLISHED artifact, not the workspace.
+#
+# The release path proves provenance (OIDC trusted publishing + SLSA attestations). It
+# does not prove the published package's public surface is intact, or that a TypeScript 6
+# consumer can still consume the emitted .d.ts. `npm test` cannot cover that: it resolves
+# through the workspace and never sees a broken exports map, a missing dist, or a `files`
+# field that dropped a directory.
+#
+# verify/run.mjs installs the package from the registry into an OS temp directory and
+# asserts resolution landed there before trusting any result — see verify/README.md for
+# why running these checks in-tree produces a false green.
+#
+# Scope is deliberately this package's own surface. The downstream checks under
+# verify/downstream/ are NOT run here: they track other packages' release cadence, so
+# gating a contracts release on them would produce red builds for unrelated reasons.
+
+name: Verify published package
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version or dist-tag to verify (e.g. 1.6.1, latest)'
+        required: false
+        default: 'latest'
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+
+      - name: Resolve target version
+        id: target
+        run: |
+          if [ "${{ github.event_name }}" = "release" ]; then
+            VERSION="${GITHUB_REF_NAME#v}"
+          else
+            VERSION="${{ inputs.version }}"
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Target: @vorionsys/contracts@$VERSION"
+
+      - name: Wait for registry propagation
+        run: |
+          for i in $(seq 1 30); do
+            if npm view "@vorionsys/contracts@${{ steps.target.outputs.version }}" version >/dev/null 2>&1; then
+              echo "Available on registry."
+              exit 0
+            fi
+            echo "Not on the registry yet (attempt $i/30) — waiting 10s."
+            sleep 10
+          done
+          echo "::error::@vorionsys/contracts@${{ steps.target.outputs.version }} never appeared on the registry"
+          exit 1
+
+      - name: Verify published package
+        run: node verify/run.mjs "${{ steps.target.outputs.version }}"
